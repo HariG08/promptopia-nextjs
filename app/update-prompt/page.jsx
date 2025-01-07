@@ -1,68 +1,79 @@
-"use client";
+'use client'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+// Dynamically import the Form component, ensuring it's only used client-side
+const Form = dynamic(() => import('@components/Form'), { ssr: false })
 
-import Form from "@components/Form";
+const EditPrompt = () => {
+    const router = useRouter();
+    const [submitting, setSubmitting] = useState(false)
+    const [post, setPost] = useState({
+        prompt: '',
+        tag: ''
+    })
+    const [promptId, setPromptId] = useState(null) // Track promptId in state
 
-const UpdatePrompt = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const promptId = searchParams.get("id");
+    useEffect(() => {
+        // Ensure the code runs only on the client-side
+        if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search)
+            const id = searchParams.get('id')
+            setPromptId(id) // Set the promptId from the URL query parameters
 
-  const [post, setPost] = useState({ prompt: "", tag: "", });
-  const [submitting, setIsSubmitting] = useState(false);
+            if (id) {
+                // Fetch prompt details based on the promptId
+                const getPromptDetails = async () => {
+                    const response = await fetch(`/api/prompt/${id}`)
+                    const data = await response.json()
+                    setPost({
+                        prompt: data.prompt,
+                        tag: data.tag
+                    })
+                }
+                getPromptDetails()
+            }
+        }
+    }, []) // Empty dependency array ensures this runs only once on mount
 
-  useEffect(() => {
-    const getPromptDetails = async () => {
-      const response = await fetch(`/api/prompt/${promptId}`);
-      const data = await response.json();
+    const updatePrompt = async (e) => {
+        e.preventDefault()
+        setSubmitting(true)
 
-      setPost({
-        prompt: data.prompt,
-        tag: data.tag,
-      });
-    };
+        if (!promptId) return alert("Prompt ID not found")
 
-    if (promptId) getPromptDetails();
-  }, [promptId]);
+        try {
+            const response = await fetch(`/api/prompt/${promptId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    prompt: post.prompt,
+                    tag: post.tag
+                })
+            })
+            console.log("Response: ", response)
 
-  const updatePrompt = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    if (!promptId) return alert("Missing PromptId!");
-
-    try {
-      const response = await fetch(`/api/prompt/${promptId}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          prompt: post.prompt,
-          tag: post.tag,
-        }),
-      });
-
-      if (response.ok) {
-        router.push("/");
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsSubmitting(false);
+            if (response.ok) {
+                router.push('/')
+            }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setSubmitting(false)
+        }
     }
-  };
 
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-    <Form
-      type='Edit'
-      post={post}
-      setPost={setPost}
-      submitting={submitting}
-      handleSubmit={updatePrompt}
-    />
-    </Suspense>
-  );
-};
+    return (
+        <div>
+            <Form
+                type="Edit"
+                post={post}
+                setPost={setPost}
+                submitting={submitting}
+                handleSubmit={updatePrompt}
+            />
+        </div>
+    )
+}
 
-export default UpdatePrompt;
+export default EditPrompt
