@@ -28,8 +28,6 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
       <div className="flex justify-between items-start gap-5">
         <div className="flex-1 justify-start items-center gap-3 cursor-pointer" onClick={handleProfileClick}>
 
-          {console.log("Username: ",post.creator?.username)}
-          {console.log("Image: ",post.creator?.image)}
           <Image
             src={post.creator?.image}
             alt="user image"

@@ -14,19 +14,15 @@ const handler = NextAuth({
   ],
   callbacks: {
     async signIn({ profile }) {
-      console.log("Inside signin callback");
       try {
         await connectToDb();
-        console.log("Connected to DB");
         const userExists = await User.findOne({ email: profile.email });
-        console.log("User exists:", userExists);
         if (!userExists) {
           await User.create({
             email: profile.email,
             username: profile.name.replace(" ", "").toLowerCase(),
             image: profile.picture,
           });
-          console.log("User created");
         }
         return true;
       } catch (error) {

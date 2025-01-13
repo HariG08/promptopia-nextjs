@@ -64,7 +64,6 @@ const Nav = () => {
               onClick={() => signIn('google')}
               className="black_btn"
             >
-              {console.log("Providers:",Object.keys(providers)[0])}
               Sign In
             </button>
           )

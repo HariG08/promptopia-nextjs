@@ -51,7 +51,6 @@ const EditPrompt = () => {
                     tag: post.tag
                 })
             })
-            console.log("Response: ", response)
 
             if (response.ok) {
                 router.push('/')

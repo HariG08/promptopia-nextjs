@@ -4,7 +4,6 @@ let isConnected = false;
 
 export const connectToDb = async () =>{
 
-    console.log("MONGO URI 1",process.env.MONGODB_URI);
     
     // mongoose.set('strictQuery',true)
 
@@ -15,7 +14,6 @@ export const connectToDb = async () =>{
 
     try {
 
-    console.log("MONGO URI 2",process.env.MONGODB_URI);
 
         await mongoose.connect(process.env.MONGODB_URI,{
             dbName: "share_prompt",
@@ -25,7 +23,6 @@ export const connectToDb = async () =>{
 
         isConnected = true;
 
-        console.log("MongoDB Connected");
         
     } catch (error) {
         
